@@ -8,6 +8,7 @@ import android.widget.EditText;
 
 import com.blackcat.currencyedittext.CurrencyEditText;
 import com.jvsena.olxclone.R;
+import com.santalu.maskedittext.MaskEditText;
 
 import java.util.Locale;
 
@@ -15,6 +16,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity {
 
     private EditText campoTitulo, campoDescricao;
     private CurrencyEditText campoValor;
+    private MaskEditText campoTelefone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +30,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity {
         campoTitulo = findViewById(R.id.editTitulo);
         campoDescricao = findViewById(R.id.editDescricao);
         campoValor = findViewById(R.id.editValor);
-
+        campoTelefone = findViewById(R.id.editTelefone);
 
         //Configurar localidade para pt-Br
         Locale locale = new Locale("pt","BR");
