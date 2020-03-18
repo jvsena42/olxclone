@@ -18,21 +18,21 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/imageView5"
+            android:id="@+id/imageCadastro1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:srcCompat="@drawable/padrao" />
 
         <ImageView
-            android:id="@+id/imageView6"
+            android:id="@+id/imageCadastro2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:srcCompat="@drawable/padrao" />
 
         <ImageView
-            android:id="@+id/imageView7"
+            android:id="@+id/imageCadastro3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
