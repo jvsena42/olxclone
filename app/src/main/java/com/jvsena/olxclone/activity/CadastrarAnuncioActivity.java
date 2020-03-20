@@ -14,8 +14,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
 import com.blackcat.currencyedittext.CurrencyEditText;
 import com.jvsena.olxclone.R;
@@ -33,6 +35,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
     private ImageView imagem1, imagem2, imagem3;
     private CurrencyEditText campoValor;
     private MaskEditText campoTelefone;
+    private Spinner campoEstado, campoCategoria;
 
     private String[] permissoes = new String[]{
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -50,6 +53,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
         Permissoes.validarPermissoes(permissoes, this, 1);
 
         inicializarComponentes();
+        carregarDadosSpinner();
     }
 
     @Override
@@ -105,6 +109,8 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
         imagem1 = findViewById(R.id.imageCadastro1);
         imagem2 = findViewById(R.id.imageCadastro2);
         imagem3 = findViewById(R.id.imageCadastro3);
+        campoEstado = findViewById(R.id.spinnerEstado);
+        campoCategoria = findViewById(R.id.spinnerCategoria);
 
         imagem1.setOnClickListener(this);
         imagem2.setOnClickListener(this);
@@ -113,6 +119,24 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
         //Configurar localidade para pt-Br
         Locale locale = new Locale("pt", "BR");
         campoValor.setLocale(locale);
+    }
+
+    private void carregarDadosSpinner(){
+        String[] estados = getResources().getStringArray(R.array.estados);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this,android.R.layout.simple_spinner_dropdown_item,
+                estados
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        campoEstado.setAdapter(adapter);
+
+        String[] categorias = getResources().getStringArray(R.array.categoria);
+        ArrayAdapter<String> adapterCategoria = new ArrayAdapter<String>(
+                this,android.R.layout.simple_spinner_dropdown_item,
+                categorias
+        );
+        adapterCategoria.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        campoCategoria.setAdapter(adapterCategoria);
     }
 
     public void salvarAnuncio(View view) {
