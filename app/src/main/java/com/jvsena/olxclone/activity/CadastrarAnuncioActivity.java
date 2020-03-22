@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.blackcat.currencyedittext.CurrencyEditText;
 import com.jvsena.olxclone.R;
@@ -139,7 +140,33 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
         campoCategoria.setAdapter(adapterCategoria);
     }
 
-    public void salvarAnuncio(View view) {
+    public void validarDadosAnuncio(View view){
+        String estado = campoEstado.getSelectedItem().toString();
+        String categoria = campoCategoria.getSelectedItem().toString();
+        String titulo = campoTitulo.getText().toString();
+        String valor = String.valueOf(campoValor.getRawValue());
+        String telefote = campoTelefone.getText().toString();
+        String descricao = campoDescricao.getText().toString();
+
+        if (listaFotosRecuperadas.size() != 0){
+
+            if (estado.isEmpty() || categoria.isEmpty() || titulo.isEmpty() || valor.isEmpty() || valor.equals("0") || telefote.isEmpty() || descricao.isEmpty() ){
+                exibirMensagemErro("Preencha todos os campos!");
+            }else {
+                salvarAnuncio();
+            }
+
+        }else {
+            exibirMensagemErro("Selecione ao menos uma imagem!");
+        }
+
+    }
+
+    private void exibirMensagemErro(String mensagem){
+        Toast.makeText(this, mensagem, Toast.LENGTH_SHORT).show();
+    }
+
+    public void salvarAnuncio() {
         String valor = campoValor.getText().toString();
     }
 
