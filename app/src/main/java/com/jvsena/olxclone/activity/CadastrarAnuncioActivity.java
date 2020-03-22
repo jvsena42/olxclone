@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -21,8 +22,15 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.blackcat.currencyedittext.CurrencyEditText;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.jvsena.olxclone.R;
+import com.jvsena.olxclone.helper.ConfiguracaoFirebase;
 import com.jvsena.olxclone.helper.Permissoes;
+import com.jvsena.olxclone.model.Anuncio;
 import com.santalu.maskedittext.MaskEditText;
 
 import java.util.ArrayList;
@@ -37,6 +45,9 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
     private CurrencyEditText campoValor;
     private MaskEditText campoTelefone;
     private Spinner campoEstado, campoCategoria;
+    private Anuncio anuncio;
+
+    private StorageReference storage;
 
     private String[] permissoes = new String[]{
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -44,11 +55,16 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
     };
 
     private List<String> listaFotosRecuperadas = new ArrayList<>();
+    private List<String> listaUrlFotos = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastrar_anuncio);
+
+        //Configuracoes iniciais
+        storage = ConfiguracaoFirebase.getFirebaseStorage();
 
         //Validar permissões
         Permissoes.validarPermissoes(permissoes, this, 1);
@@ -140,7 +156,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
         campoCategoria.setAdapter(adapterCategoria);
     }
 
-    public void validarDadosAnuncio(View view){
+    private Anuncio configurarAnuncio(){
         String estado = campoEstado.getSelectedItem().toString();
         String categoria = campoCategoria.getSelectedItem().toString();
         String titulo = campoTitulo.getText().toString();
@@ -148,9 +164,74 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
         String telefote = campoTelefone.getText().toString();
         String descricao = campoDescricao.getText().toString();
 
+        Anuncio anuncio = new Anuncio();
+        anuncio.setEstado(estado);
+        anuncio.setCategoria(categoria);
+        anuncio.setTitulo(titulo);
+        anuncio.setValor(valor);
+        anuncio.setTelefone(telefote);
+        anuncio.setDescricao(descricao);
+
+        return anuncio;
+    }
+
+    public void salvarAnuncio() {
+
+        //Salvar imagem no storage
+        int tamanhoLista = listaFotosRecuperadas.size();
+        for (int i=0; i<tamanhoLista; i++){
+            String urlImagem = listaFotosRecuperadas.get(i);
+            salvarFotosStorage(urlImagem,tamanhoLista,i);
+        }
+
+    }
+
+    public void salvarFotosStorage(String urlString, final int totalFotos, int contador){
+
+        //Criar nó no storage
+        final StorageReference imagemAnuncio = storage.child("imagens")
+                                                .child("anuncios")
+                                                .child(anuncio.getIdAnuncio())
+                                                .child("imagem"+contador);
+
+        //Fazer upload no firebase Storage
+        final UploadTask uploadTask = imagemAnuncio.putFile(Uri.parse(urlString));
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                imagemAnuncio.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        String urlConvertida = uri.toString();      //Esta url funciona!!!
+                        listaUrlFotos.add( urlConvertida );
+
+                        //Testa finalização de upload das imagens
+                        if ( listaUrlFotos.size() == totalFotos  ){ //todas as fotos salvas
+                            anuncio.setFotos( listaUrlFotos );
+                            anuncio.salvar();
+                        }
+                        exibirMensagemErro("Anuncio salvo con sucesso!");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                       exibirMensagemErro("Falha ao fazer upload!");
+                        Log.i("INFO","Falha ao fazer upload: "+ e.getMessage());
+                    }
+                });
+
+    }});}
+
+
+
+    public void validarDadosAnuncio(View view){
+
+        anuncio = configurarAnuncio();
+
         if (listaFotosRecuperadas.size() != 0){
 
-            if (estado.isEmpty() || categoria.isEmpty() || titulo.isEmpty() || valor.isEmpty() || valor.equals("0") || telefote.isEmpty() || descricao.isEmpty() ){
+            if (anuncio.getEstado().isEmpty() || anuncio.getCategoria().isEmpty() || anuncio.getTitulo().isEmpty() || anuncio.getValor().isEmpty()
+                    || anuncio.getValor().equals("0") || anuncio.getTelefone().isEmpty() || anuncio.getDescricao().isEmpty() ){
                 exibirMensagemErro("Preencha todos os campos!");
             }else {
                 salvarAnuncio();
@@ -166,9 +247,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
         Toast.makeText(this, mensagem, Toast.LENGTH_SHORT).show();
     }
 
-    public void salvarAnuncio() {
-        String valor = campoValor.getText().toString();
-    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

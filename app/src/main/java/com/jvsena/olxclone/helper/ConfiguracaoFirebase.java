@@ -36,4 +36,10 @@ public class ConfiguracaoFirebase {
         return firebaseStorage;
     }
 
+    //Recuperar id do usuario
+    public static String getIdUsuario(){
+        FirebaseAuth firebaseAuth = getFirebaseAuth();
+        return firebaseAuth.getCurrentUser().getUid();
+    }
+
 }
