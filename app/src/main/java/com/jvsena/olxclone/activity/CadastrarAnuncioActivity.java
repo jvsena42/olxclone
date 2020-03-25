@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import dmax.dialog.SpotsDialog;
+
 public class CadastrarAnuncioActivity extends AppCompatActivity
         implements View.OnClickListener {
 
@@ -46,6 +48,8 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
     private MaskEditText campoTelefone;
     private Spinner campoEstado, campoCategoria;
     private Anuncio anuncio;
+    private android.app.AlertDialog dialog;
+
 
     private StorageReference storage;
 
@@ -160,7 +164,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
         String estado = campoEstado.getSelectedItem().toString();
         String categoria = campoCategoria.getSelectedItem().toString();
         String titulo = campoTitulo.getText().toString();
-        String valor = String.valueOf(campoValor.getRawValue());
+        String valor = campoValor.getText().toString();
         String telefote = campoTelefone.getText().toString();
         String descricao = campoDescricao.getText().toString();
 
@@ -176,6 +180,13 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
     }
 
     public void salvarAnuncio() {
+
+        dialog = new SpotsDialog.Builder()
+                .setContext(this)
+                .setMessage("Salvando Anuncio")
+                .setCancelable(false)
+                .build();
+        dialog.show();
 
         //Salvar imagem no storage
         int tamanhoLista = listaFotosRecuperadas.size();
@@ -209,6 +220,9 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
                         if ( listaUrlFotos.size() == totalFotos  ){ //todas as fotos salvas
                             anuncio.setFotos( listaUrlFotos );
                             anuncio.salvar();
+
+                            dialog.dismiss();
+                            finish();
                         }
                         exibirMensagemErro("Anuncio salvo con sucesso!");
             }
@@ -227,11 +241,13 @@ public class CadastrarAnuncioActivity extends AppCompatActivity
     public void validarDadosAnuncio(View view){
 
         anuncio = configurarAnuncio();
+        String valor = String.valueOf(campoValor.getRawValue());
+
 
         if (listaFotosRecuperadas.size() != 0){
 
-            if (anuncio.getEstado().isEmpty() || anuncio.getCategoria().isEmpty() || anuncio.getTitulo().isEmpty() || anuncio.getValor().isEmpty()
-                    || anuncio.getValor().equals("0") || anuncio.getTelefone().isEmpty() || anuncio.getDescricao().isEmpty() ){
+            if (anuncio.getEstado().isEmpty() || anuncio.getCategoria().isEmpty() || anuncio.getTitulo().isEmpty() || valor.isEmpty()
+                    || valor.equals("0") || anuncio.getTelefone().isEmpty() || anuncio.getDescricao().isEmpty() ){
                 exibirMensagemErro("Preencha todos os campos!");
             }else {
                 salvarAnuncio();
