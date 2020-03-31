@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.jvsena.olxclone.R;
 import com.jvsena.olxclone.model.Anuncio;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.List;
 
@@ -35,18 +38,28 @@ public class AdaperAnuncios extends RecyclerView.Adapter<AdaperAnuncios.MyViewHo
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
 
+        Anuncio anuncio = anuncios.get(position);
+        holder.titulo.setText(anuncio.getTitulo());
+        holder.valor.setText(anuncio.getValor());
+
+        //Pegar a primeira imagem da lista
+        List<String> urlFotos = anuncio.getFotos();
+        String urlCapa = urlFotos.get(0);
+
+        Picasso.get().load(urlCapa).into(holder.foto);
+
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return anuncios.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
 
        TextView titulo;
        TextView valor;
-       TextView foto;
+       ImageView foto;
 
        public MyViewHolder(View itemView){
            super(itemView);
