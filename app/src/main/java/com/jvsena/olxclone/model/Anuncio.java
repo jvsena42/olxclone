@@ -1,6 +1,14 @@
 package com.jvsena.olxclone.model;
 
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.jvsena.olxclone.helper.ConfiguracaoFirebase;
 
 import java.util.List;
@@ -41,6 +49,56 @@ public class Anuncio {
                 .child(getIdAnuncio())
                 .setValue(this);
 
+    }
+
+    public void remover(){
+        String idUsuario = ConfiguracaoFirebase.getIdUsuario();
+        DatabaseReference anuncioRef = ConfiguracaoFirebase.getFirebaseDatabase()
+                .child("meus_anuncios")
+                .child(idUsuario)
+                .child(getIdAnuncio());
+
+        anuncioRef.removeValue();
+        removerAnuncioPublico();
+        removeFotosStorage();
+    }
+
+    public void removerAnuncioPublico(){
+        DatabaseReference anuncioRef = ConfiguracaoFirebase.getFirebaseDatabase()
+                .child("anuncios")
+                .child(getEstado())
+                .child(getCategoria())
+                .child(getIdAnuncio());
+
+        anuncioRef.removeValue();
+    }
+
+    public void removeFotosStorage(){
+
+        List<String> listaDeFotos = this.getFotos();
+        for(int i = 0; i < listaDeFotos.size(); i++){
+
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+            StorageReference storage;
+
+            storage = storageReference.child("imagens").child("anuncios").child(this.getIdAnuncio())
+                    .child("imagem"+i);
+
+            storage.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+
+//Adicione o que você quiser aqui após a exclusão ser bem sucedida.
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    //Adicione o que você quiser aqui após a exclusão ser bem sucedida.
+
+                }
+            });
+        }
     }
 
     public String getEstado() {
