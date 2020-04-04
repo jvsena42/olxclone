@@ -11,9 +11,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jvsena.olxclone.helper.ConfiguracaoFirebase;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Anuncio {
+public class Anuncio implements Serializable {
 
     private String estado, categoria, titulo, valor, telefone, descricao;
     private String idAnuncio;
